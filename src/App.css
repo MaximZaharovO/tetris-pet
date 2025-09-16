@@ -41,7 +41,7 @@ body {
 
 .field_controls {
   position: absolute;
-  bottom: 30px;
+  bottom: 20px;
   right: 15px;
 
   display: flex;

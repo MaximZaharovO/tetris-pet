@@ -293,11 +293,11 @@ function Field({reset}) {
                 </div>}
             </div>
             {isMobile && <div className="field_controls">
-                <div ref={upRef} className='svg__control'><RotateSVG  fill='#0096c7' width={50}/></div>
+                <div ref={upRef} className='svg__control'><RotateSVG  fill='#0096c7'        width={75}/></div>
                 <div className='field_controls__bottom'>
-                    <div ref={leftRef} className='svg__control'><LeftSVG    fill='#0096c7' width={50}/></div>
-                    <div ref={downRef} className='svg__control'><DownSVG    fill='#0096c7' width={50}/></div>
-                    <div ref={rightRef} className='svg__control'><RightSVG   fill='#0096c7' width={50}/></div>
+                    <div ref={leftRef} className='svg__control'><LeftSVG    fill='#0096c7'  width={75}/></div>
+                    <div ref={downRef} className='svg__control'><DownSVG    fill='#0096c7'  width={75}/></div>
+                    <div ref={rightRef} className='svg__control'><RightSVG   fill='#0096c7' width={75}/></div>
                 </div>
             </div>}
         </>
