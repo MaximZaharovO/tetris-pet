@@ -13,7 +13,7 @@ import {ReactComponent as LeftSVG} from '../icons/left.svg'
 import {ReactComponent as RightSVG} from '../icons/right.svg'
 import {ReactComponent as RotateSVG} from '../icons/rotate.svg'
 
-function Field() {
+function Field({reset}) {
     const fieldsSettings = useContext(FieldContext)
 
     const isMobile = isMobileOrTablet();
@@ -33,11 +33,11 @@ function Field() {
 
     const [leftPressed, rightPressed, upPressed, downPressed] = useKeysAction(downRef, upRef, leftRef, rightRef)
 
-    const [pauseDown, pauseManualDown, pauseManualLeft, pauseManualRight] = useTimerAction(50, updateCords, [
+    const [pauseDown, pauseManualDown, pauseManualLeft, pauseManualRight] = useTimerAction(75, updateCords, [
         {
             // autoDOWN
             editArgs: (args) => args == null ? {XOffset: 0, YOffset: 1} : {...args, YOffset: args.YOffset + 1},
-            launchOnCount: 30 - (figuresPlaced / 1),
+            launchOnCount: 15 - (figuresPlaced / 1),
             accelerateOnCount: 300
         },
         {
@@ -80,6 +80,8 @@ function Field() {
 
     useEffect(() => {
         if (isFirst) {
+            
+
             saveFigures()
             setIsFirst(false)
         }
@@ -88,6 +90,10 @@ function Field() {
     useEffect(() => {
         pauseDown(downPressed)
         pauseManualDown(!downPressed)
+
+        if (downPressed) {
+            updateCords({XOffset: 0, YOffset: 1})
+        }
     }, [downPressed])
 
     useEffect(() => {
@@ -135,7 +141,6 @@ function Field() {
             && usedBlock.y === newBlock[baseRotation].YOffset + baseYCord));
         
         if (defeat) {
-            alert("КОНЕЦ")
             setStop(true);
             return;
         }
@@ -146,6 +151,7 @@ function Field() {
             y:baseYCord,
             rotation: baseRotation
         })
+        pauseDown(false)
     }, [field])
 
     function nextRotation(cords, currentFigure) {
@@ -220,6 +226,8 @@ function Field() {
 
             setFiguresPlaced(prev => prev + 1)
 
+            pauseDown(true)
+
             setField(prev => addBlocks(prev, newItems))
         }
     }
@@ -270,7 +278,7 @@ function Field() {
 
     return (
         <>
-            <div className="field__score">СЧЕТ: {field.score}</div>
+            <div className="field__score">{field.score}</div>
             <div className="field__wrapper"
                 style={{width: fieldsSettings.xSize, height: fieldsSettings.ySize}}
             >
@@ -285,6 +293,12 @@ function Field() {
                         <div ref={downRef} className='svg__control'><DownSVG    fill='#0096c7' width={50}/></div>
                         <div ref={rightRef} className='svg__control'><RightSVG   fill='#0096c7' width={50}/></div>
                     </div>
+                </div>}
+
+                {stop && <div className='APP__MODAL__STOP'>
+                    <div className='APP_MODAL_HEADER' style={{textAlign: "center"}}>ИГРА ЗАВЕРШЕНА</div>
+                    <div>СЧЕТ: {field.score}</div>
+                    <div onClick={() => reset()} className='APP_RESTART'>Перезапустить</div>
                 </div>}
             </div>
         </>

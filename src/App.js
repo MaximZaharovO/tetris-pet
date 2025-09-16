@@ -1,9 +1,15 @@
-import { useRef } from 'react';
+import { useState } from 'react';
 import './App.css';
 import Field from './components/Field';
 import FieldContext from './FieldContext';
+import useGlobalAction from './hooks/useGlobalAction';
 
 function App() {
+
+  const [seed, setSeed] = useState(1);
+  const reset = () => {
+    setSeed(Math.random());
+  }
 
   const getConfig = (blockSize, xSize, ySize) => {
     return {
@@ -22,8 +28,6 @@ function App() {
   const stepOnW = Math.floor((window.innerWidth - 100) / maxX)
   const stepOnH = Math.floor((window.innerHeight - 100) / maxY)
 
-  console.log(stepOnW)
-
   const stepSize = stepOnH > stepOnW ? stepOnW : stepOnH
 
   const config = getConfig(stepSize, maxX, maxY)
@@ -31,7 +35,7 @@ function App() {
   return (
     <div className="App">
       <FieldContext.Provider value={config}>
-        <Field/>
+        <Field reset={reset} key={seed}/>
       </FieldContext.Provider>
     </div>
   );

@@ -62,3 +62,85 @@ body {
 
 
 /*Field END*/
+
+.APP__MODAL__STOP {
+  width: 90%;
+  position: absolute;
+  
+  top: 50%;
+  left: 50%;
+
+  transform: translate(-50%, -50%);
+  
+  z-index: 10;
+
+  background-color: #fff;
+  padding: 15px;
+
+  animation-name: show-popup;
+  animation-duration: .3s; /* How long the animation takes */
+  animation-iteration-count: 1;
+
+  font-size: 28px;
+  color: #2d232e;
+
+  border: 1px solid #ddd;
+	border-radius: 3px;
+
+  -webkit-touch-callout: none; /* iOS Safari */
+  -webkit-user-select: none; /* Safari */
+  -khtml-user-select: none; /* Konqueror HTML */
+  -moz-user-select: none; /* Old versions of Firefox */
+  -ms-user-select: none; /* Internet Explorer/Edge */
+  user-select: none; /* Non-prefixed version, currently
+                        supported by Chrome, Edge, Opera and Firefox */
+}
+
+.APP__MODAL__STOP > * {
+  margin: 0 0 24px;
+}
+
+.APP_RESTART {
+  margin-bottom: 4px;
+	padding: 8px 12px;
+	border: 1px solid #75B9E1;
+
+	border-radius: 3px;
+	background: #4FA0D0;
+
+	cursor: pointer;
+
+	font-family: inherit;
+	text-transform: uppercase;
+	color: #fff;
+
+  text-align: center;
+}
+
+.APP_MODAL_HEADER {
+  text-align: center;
+}
+
+
+@keyframes show-popup {
+	0% {
+		transform: translate(-50%, -50%)
+		scale(.7);
+
+		opacity: 0;
+	}
+	45% {
+		transform: translate(-50%, -50%)
+		scale(1.05);
+
+		opacity: 1;
+	}
+	80% {
+		transform: translate(-50%, -50%)
+		scale(.95);
+	}
+	100% {
+		transform: translate(-50%, -50%)
+		scale(1);
+	}
+}
