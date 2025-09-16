@@ -1,0 +1,28 @@
+* {
+  margin: 0;
+  padding: 0;
+}
+
+
+/*Field START*/
+
+.field__wrapper {
+    background-color: bisque;
+
+    margin: 20px auto;
+
+    position: relative;
+}
+
+.field_block {
+    background-color: rgb(179, 137, 137);
+
+    position: absolute;
+    top: 0;
+    left: 0;
+
+    border: 1px solid #7e7e7e;
+    border-radius: 1px;
+}
+
+/*Field END*/
