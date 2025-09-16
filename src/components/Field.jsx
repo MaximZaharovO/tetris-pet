@@ -286,21 +286,20 @@ function Field({reset}) {
 
                 {field.blocks.map(block => <Block key={`${block.x}-${block.y}`} color={block.color} x={block.x} y={block.y}/>)}
 
-                {isMobile && <div className="field_controls">
-                    <div ref={upRef} className='svg__control'><RotateSVG  fill='#0096c7' width={50}/></div>
-                    <div className='field_controls__bottom'>
-                        <div ref={leftRef} className='svg__control'><LeftSVG    fill='#0096c7' width={50}/></div>
-                        <div ref={downRef} className='svg__control'><DownSVG    fill='#0096c7' width={50}/></div>
-                        <div ref={rightRef} className='svg__control'><RightSVG   fill='#0096c7' width={50}/></div>
-                    </div>
-                </div>}
-
                 {stop && <div className='APP__MODAL__STOP'>
                     <div className='APP_MODAL_HEADER' style={{textAlign: "center"}}>ИГРА ЗАВЕРШЕНА</div>
                     <div>СЧЕТ: {field.score}</div>
                     <div onClick={() => reset()} className='APP_RESTART'>Перезапустить</div>
                 </div>}
             </div>
+            {isMobile && <div className="field_controls">
+                <div ref={upRef} className='svg__control'><RotateSVG  fill='#0096c7' width={50}/></div>
+                <div className='field_controls__bottom'>
+                    <div ref={leftRef} className='svg__control'><LeftSVG    fill='#0096c7' width={50}/></div>
+                    <div ref={downRef} className='svg__control'><DownSVG    fill='#0096c7' width={50}/></div>
+                    <div ref={rightRef} className='svg__control'><RightSVG   fill='#0096c7' width={50}/></div>
+                </div>
+            </div>}
         </>
     )
 }

@@ -41,7 +41,7 @@ body {
 
 .field_controls {
   position: absolute;
-  bottom: 15px;
+  bottom: 30px;
   right: 15px;
 
   display: flex;
@@ -64,7 +64,6 @@ body {
 /*Field END*/
 
 .APP__MODAL__STOP {
-  width: 90%;
   position: absolute;
   
   top: 50%;

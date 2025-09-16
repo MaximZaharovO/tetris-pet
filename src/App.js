@@ -26,7 +26,7 @@ function App() {
   const maxY = 16;
 
   const stepOnW = Math.floor((window.innerWidth - 100) / maxX)
-  const stepOnH = Math.floor((window.innerHeight - 100) / maxY)
+  const stepOnH = Math.floor((window.innerHeight - 220) / maxY)
 
   const stepSize = stepOnH > stepOnW ? stepOnW : stepOnH
 
