@@ -1,45 +1,20 @@
 
-import { useContext, useEffect, useState, useCallback } from 'react'
+import { useContext, useEffect, useState } from 'react'
 import '../App.css'
 import Figure from './Figure.jsx'
 import FieldContext from '../FieldContext.js'
 import useTimerAction from '../hooks/useTimerAction.js'
 import Block from './Block.jsx'
 import useKeysAction from '../hooks/useKeysAction.js'
-
-const cube = [
-    [
-        {
-            XOffset: 0,
-            YOffset: 0,
-        },
-        {
-            XOffset: 1,
-            YOffset: 0,
-        },
-        {
-            XOffset: 0,
-            YOffset: 1,
-        },
-        {
-            XOffset: 1,
-            YOffset: 1,
-        },
-    ]
-]
-
-const FIGURES = [
-    cube,
-]
+import FIGURES from '../Figures.js'
 
 function Field() {
     const fieldsSettings = useContext(FieldContext)
 
     const [stop, setStop] = useState(false)
     const [isFirst, setIsFirst] = useState(true)
-    const [cords, setCords] = useState({x: 0, y: 0})
+    const [cords, setCords] = useState({x: 0, y: 0, rotation: 0})
     const [currentFigure, setCurrentFigure] = useState([[]])
-    const [currentFigureRotation, setCurrentFigureRotation] = useState(0)
     const [usedBlocks, setUsedBlocks] = useState([])
 
     const [leftPressed, rightPressed, upPressed, downPressed] = useKeysAction()
@@ -98,18 +73,14 @@ function Field() {
 
     useEffect(() => {
         if (upPressed) {
-            setCurrentFigureRotation(prev => {
-                if (prev + 1 < currentFigure.length) {
-                    return prev+1;
+            setCords(prev => {
+                if (canBeRotated(prev)) {
+                    return {...prev, rotation: nextRotation(prev, currentFigure)}
                 }
-                return 0;
+                return prev
             })
         }
     }, [upPressed])
-
-    useEffect(() => {
-        updateCords({XOffset: 0, YOffset: 0})
-    }, [currentFigureRotation])
 
     useEffect(() => {
         if (leftPressed && rightPressed) {
@@ -123,31 +94,52 @@ function Field() {
     }, [leftPressed, rightPressed])
 
     useEffect(() => {
-        if (!canBeMovedDown(cords, {YOffset: 1, XOffset: 0})) {
+        if (!stop && !canBeMovedDown(cords, {YOffset: 1, XOffset: 0})) {
             saveFigures()
         }
     }, [cords])
 
     useEffect(() => {
-        let newBlocks = cube
+        let newBlocks = FIGURES[getRandomInt(FIGURES.length)]
         const baseXCord = 0;
         const baseYCord = 0;
+        const baseRotation = 0;
 
-        let defeat = newBlocks.some(newBlock => usedBlocks.some(usedBlock => usedBlock.x === newBlock.XOffset + baseXCord 
-            && usedBlock.y === newBlock.YOffset + baseYCord));
+        let defeat = newBlocks.some(newBlock => usedBlocks.some(usedBlock => usedBlock.x === newBlock[baseRotation].XOffset + baseXCord 
+            && usedBlock.y === newBlock[baseRotation].YOffset + baseYCord));
         
         if (defeat) {
+            alert("КОНЕЦ")
             setStop(true);
             return;
         }
 
-        setCurrentFigureRotation(0)
         setCurrentFigure(newBlocks)
-        setCords({x:baseXCord,y:baseYCord})
+        setCords({x:baseXCord,y:baseYCord, rotation: baseRotation})
     }, [usedBlocks])
 
+    function nextRotation(cords, currentFigure) {
+        return cords.rotation + 1 < currentFigure.length ? cords.rotation + 1 : 0
+    }
+
+    function getRandomInt(max) {
+        return Math.floor(Math.random() * max);
+    }
+
+    function canBeRotated(prev) {
+
+        let changedRotation = {...prev, rotation: nextRotation(prev, currentFigure)}
+
+        let yNotBlocked = canBeMovedDown(changedRotation, {XOffset: 0, YOffset: 0})
+        let xNotBlocked = canBeMovedX(changedRotation, {XOffset: 0, YOffset: 0})
+        if (!yNotBlocked || !xNotBlocked) {
+            return false;
+        }
+        return true
+    }
+
     function canBeMovedDown(prev, offset) {
-        for (let currentBlock of currentFigure[currentFigureRotation]) {
+        for (let currentBlock of currentFigure[prev.rotation]) {
 
             let newBlockY = prev.y + offset.YOffset + currentBlock.YOffset;
 
@@ -167,7 +159,7 @@ function Field() {
     }
 
     function canBeMovedX(prev, offset) {
-        for (let currentBlock of currentFigure[currentFigureRotation]) {
+        for (let currentBlock of currentFigure[prev.rotation]) {
 
             let newBlockX = prev.x + offset.XOffset + currentBlock.XOffset;
 
@@ -187,15 +179,15 @@ function Field() {
     }
 
     function saveFigures() {
-        if (currentFigure[currentFigureRotation].length > 0) {
-            const newItems = currentFigure[currentFigureRotation].map(used => {
+        if (currentFigure[cords.rotation].length > 0) {
+            const newItems = currentFigure[cords.rotation].map(used => {
                 return {
                     x: cords.x + used.XOffset,
                     y: cords.y + used.YOffset
                 }
             })
 
-            setUsedBlocks(prev => [...prev, ...newItems])
+            setUsedBlocks(prev => [...prev, ...newItems.filter(x => !prev.some(exist => (exist.x === x.x && exist.y === x.y)))])
         }
     }
 
@@ -203,7 +195,7 @@ function Field() {
         <div className="field__wrapper"
             style={{width: fieldsSettings.xSize, height: fieldsSettings.ySize}}
         >
-            <Figure baseX={cords.x} baseY={cords.y} blocks={currentFigure[currentFigureRotation]}/>
+            <Figure baseX={cords.x} baseY={cords.y} blocks={currentFigure[cords.rotation]}/>
 
             {usedBlocks.map(block => <Block key={`${block.x}-${block.y}`} x={block.x} y={block.y}/>)}
         </div>
