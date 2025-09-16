@@ -1,17 +1,17 @@
 {
   "files": {
-    "main.css": "/tetris-pet/static/css/main.238dabc1.css",
-    "main.js": "/tetris-pet/static/js/main.ff1bc716.js",
+    "main.css": "/tetris-pet/static/css/main.2bccbda6.css",
+    "main.js": "/tetris-pet/static/js/main.41e7f5b1.js",
     "static/media/rotate.svg": "/tetris-pet/static/media/rotate.48ed24b29796b679d0b53fd64329ebdb.svg",
     "static/media/down.svg": "/tetris-pet/static/media/down.fc97cdc8250a3a5b6eb37493d310ce51.svg",
     "static/media/right.svg": "/tetris-pet/static/media/right.86cb0c0386f74e2ddc2e9c1c59d82fad.svg",
     "static/media/left.svg": "/tetris-pet/static/media/left.bd9d1d59baf99da0eda1d7607575adc0.svg",
     "index.html": "/tetris-pet/index.html",
-    "main.238dabc1.css.map": "/tetris-pet/static/css/main.238dabc1.css.map",
-    "main.ff1bc716.js.map": "/tetris-pet/static/js/main.ff1bc716.js.map"
+    "main.2bccbda6.css.map": "/tetris-pet/static/css/main.2bccbda6.css.map",
+    "main.41e7f5b1.js.map": "/tetris-pet/static/js/main.41e7f5b1.js.map"
   },
   "entrypoints": [
-    "static/css/main.238dabc1.css",
-    "static/js/main.ff1bc716.js"
+    "static/css/main.2bccbda6.css",
+    "static/js/main.41e7f5b1.js"
   ]
 }
