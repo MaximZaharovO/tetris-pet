@@ -39,4 +39,26 @@ body {
     border-radius: 1px;
 }
 
+.field_controls {
+  position: absolute;
+  bottom: 15px;
+  right: 15px;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.field_controls__bottom {
+  display: flex;
+  margin-top: 8px;
+}
+
+.svg__control {
+  cursor: pointer;
+
+  margin: 0 4px;
+}
+
+
 /*Field END*/
