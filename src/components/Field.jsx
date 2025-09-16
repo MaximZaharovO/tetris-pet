@@ -13,33 +13,40 @@ function Field() {
 
     const [stop, setStop] = useState(false)
     const [isFirst, setIsFirst] = useState(true)
-    const [cords, setCords] = useState({x: 6, y: 0, rotation: 0})
+    const [cords, setCords] = useState({x: 0, y: 0, rotation: 0})
     const [currentFigure, setCurrentFigure] = useState([[]])
-    const [usedBlocks, setUsedBlocks] = useState([])
+    const [field, setField] = useState({blocks: [], score: 0})
+
+    const [figuresPlaced, setFiguresPlaced] = useState(0)
 
     const [leftPressed, rightPressed, upPressed, downPressed] = useKeysAction()
 
     const [pauseDown, pauseManualDown, pauseManualLeft, pauseManualRight] = useTimerAction(50, updateCords, [
         {
+            // autoDOWN
             editArgs: (args) => args == null ? {XOffset: 0, YOffset: 1} : {...args, YOffset: args.YOffset + 1},
-            launchOnCount: 20
+            launchOnCount: 30 - (figuresPlaced / 1),
+            accelerateOnCount: 300
         },
         {
+            // manualDOWN
             editArgs: (args) => args == null ? {XOffset: 0, YOffset: 1} : {...args, YOffset: args.YOffset + 1},
             pause: true,
             launchOnCount: 1
         },
         {
+            // manualLEFT
             editArgs: (args) => args == null ? {XOffset: -1, YOffset: 0} : {...args, XOffset: args.XOffset - 1},
             pause: true,
             launchOnCount: 1
         },
         {
+            // manualRIGHT
             editArgs: (args) => args == null ? {XOffset: 1, YOffset: 0} : {...args, XOffset: args.XOffset + 1},
             pause: true,
-            launchOnCount: 1
+            launchOnCount: 1 // Должно быть единицей, чтобы нормально работало смещение в сторону перед заверешением
         },
-    ], stop)
+    ], stop, [figuresPlaced])
 
     function updateCords(offset) {
         setCords(prev => {
@@ -88,6 +95,13 @@ function Field() {
             pauseManualRight(true)
             return;
         }
+
+        if (leftPressed) {
+            updateCords({XOffset: -1, YOffset: 0})
+        }
+        else if (rightPressed) {
+            updateCords({XOffset: 1, YOffset: 0})
+        }
         
         pauseManualLeft(!leftPressed)
         pauseManualRight(!rightPressed)
@@ -101,11 +115,11 @@ function Field() {
 
     useEffect(() => {
         let newBlocks = FIGURES[getRandomInt(FIGURES.length)]
-        const baseXCord = 6;
+        const baseXCord = fieldsSettings.xBase;
         const baseYCord = 0;
         const baseRotation = 0;
 
-        let defeat = newBlocks.some(newBlock => usedBlocks.some(usedBlock => usedBlock.x === newBlock[baseRotation].XOffset + baseXCord 
+        let defeat = newBlocks.some(newBlock => field.blocks.some(usedBlock => usedBlock.x === newBlock[baseRotation].XOffset + baseXCord 
             && usedBlock.y === newBlock[baseRotation].YOffset + baseYCord));
         
         if (defeat) {
@@ -120,7 +134,7 @@ function Field() {
             y:baseYCord,
             rotation: baseRotation
         })
-    }, [usedBlocks])
+    }, [field])
 
     function nextRotation(cords, currentFigure) {
         return cords.rotation + 1 < currentFigure.length ? cords.rotation + 1 : 0
@@ -152,7 +166,7 @@ function Field() {
             }
 
             let newBlockX = prev.x + currentBlock.XOffset // + offset.XOffset 
-            for (let usedBlock of usedBlocks) {
+            for (let usedBlock of field.blocks) {
                 let onOneY = newBlockY === usedBlock.y
                 if (newBlockX === usedBlock.x && onOneY) {
                     return false;
@@ -172,7 +186,7 @@ function Field() {
             }
 
             let newBlockY = prev.y + offset.YOffset + currentBlock.YOffset
-            for (let usedBlock of usedBlocks) {
+            for (let usedBlock of field.blocks) {
                 let onOneY = newBlockY === usedBlock.y
                 if (newBlockX === usedBlock.x && onOneY) {
                     return false;
@@ -187,17 +201,22 @@ function Field() {
             const newItems = currentFigure[cords.rotation].map(used => {
                 return {
                     x: cords.x + used.XOffset,
-                    y: cords.y + used.YOffset
+                    y: cords.y + used.YOffset,
+                    color: used.color
                 }
             })
 
-            setUsedBlocks(prev => addBlocks(prev, newItems))
+            setFiguresPlaced(prev => prev + 1)
+
+            setField(prev => addBlocks(prev, newItems))
         }
     }
 
     function addBlocks(prev, newItems) {
-        let newBlocks = [...prev, ...newItems.filter(x => !prev.some(exist => (exist.x === x.x && exist.y === x.y)))]
+        let newBlocks = [...prev.blocks, ...newItems.filter(x => !prev.blocks.some(exist => (exist.x === x.x && exist.y === x.y)))]
         newBlocks = newBlocks.map(x => Object.assign({}, x)) // copying
+
+        let score = prev.score
 
         let levelsCount = newBlocks.reduce((accumulator, currentValue) => {
             if (accumulator[currentValue.y]) {
@@ -213,6 +232,8 @@ function Field() {
             .map(x => parseInt(x))
 
         if (yToRemove.length > 0) {
+            score += yToRemove.length;
+
             newBlocks = newBlocks.filter(x => !yToRemove.includes(x.y))
             newBlocks = newBlocks.map(newBlock => {
                 const yOffset = yToRemove.reduce((sum, cur) => {
@@ -226,17 +247,20 @@ function Field() {
             })
         }
 
-        return newBlocks;
+        return {blocks: newBlocks, score};
     }
 
     return (
-        <div className="field__wrapper"
-            style={{width: fieldsSettings.xSize, height: fieldsSettings.ySize}}
-        >
-            <Figure baseX={cords.x} baseY={cords.y} blocks={currentFigure[cords.rotation]}/>
+        <>
+            <div className="field__score">СЧЕТ: {field.score}</div>
+            <div className="field__wrapper"
+                style={{width: fieldsSettings.xSize, height: fieldsSettings.ySize}}
+            >
+                <Figure baseX={cords.x} baseY={cords.y} blocks={currentFigure[cords.rotation]}/>
 
-            {usedBlocks.map(block => <Block key={`${block.x}-${block.y}`} x={block.x} y={block.y}/>)}
-        </div>
+                {field.blocks.map(block => <Block key={`${block.x}-${block.y}`} color={block.color} x={block.x} y={block.y}/>)}
+            </div>
+        </>
     )
 }
 

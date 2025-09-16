@@ -6,8 +6,22 @@
 
 /*Field START*/
 
+body {
+  background-color: #474448;
+}
+
+.field__score {
+    margin: 20px auto;
+
+    text-align: center;
+    font-size: 20px;
+    font-family: serif;
+
+    color: #f1f0ea;
+}
+
 .field__wrapper {
-    background-color: bisque;
+    background-color: #f1f0ea;
 
     margin: 20px auto;
 
@@ -15,13 +29,13 @@
 }
 
 .field_block {
-    background-color: rgb(179, 137, 137);
+    background-color: #d88c9a;
 
     position: absolute;
     top: 0;
     left: 0;
 
-    border: 1px solid #7e7e7e;
+    border: 1px solid #8e7dbe;
     border-radius: 1px;
 }
 

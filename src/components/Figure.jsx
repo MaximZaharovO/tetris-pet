@@ -8,7 +8,7 @@ function Figure({
     return (
         <>
             {blocks.map(block => {
-                return (<Block key={`${block.XOffset}-${block.YOffset}`} x={baseX + block.XOffset} y={baseY + block.YOffset}/>)
+                return (<Block key={`${block.XOffset}-${block.YOffset}`} color={block.color} x={baseX + block.XOffset} y={baseY + block.YOffset}/>)
             })}
         </>
     )
