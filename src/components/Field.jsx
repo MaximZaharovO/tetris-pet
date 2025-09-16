@@ -13,7 +13,7 @@ function Field() {
 
     const [stop, setStop] = useState(false)
     const [isFirst, setIsFirst] = useState(true)
-    const [cords, setCords] = useState({x: 0, y: 0, rotation: 0})
+    const [cords, setCords] = useState({x: 6, y: 0, rotation: 0})
     const [currentFigure, setCurrentFigure] = useState([[]])
     const [usedBlocks, setUsedBlocks] = useState([])
 
@@ -101,7 +101,7 @@ function Field() {
 
     useEffect(() => {
         let newBlocks = FIGURES[getRandomInt(FIGURES.length)]
-        const baseXCord = 0;
+        const baseXCord = 6;
         const baseYCord = 0;
         const baseRotation = 0;
 
@@ -115,7 +115,11 @@ function Field() {
         }
 
         setCurrentFigure(newBlocks)
-        setCords({x:baseXCord,y:baseYCord, rotation: baseRotation})
+        setCords({
+            x:baseXCord,
+            y:baseYCord,
+            rotation: baseRotation
+        })
     }, [usedBlocks])
 
     function nextRotation(cords, currentFigure) {
@@ -187,8 +191,42 @@ function Field() {
                 }
             })
 
-            setUsedBlocks(prev => [...prev, ...newItems.filter(x => !prev.some(exist => (exist.x === x.x && exist.y === x.y)))])
+            setUsedBlocks(prev => addBlocks(prev, newItems))
         }
+    }
+
+    function addBlocks(prev, newItems) {
+        let newBlocks = [...prev, ...newItems.filter(x => !prev.some(exist => (exist.x === x.x && exist.y === x.y)))]
+        newBlocks = newBlocks.map(x => Object.assign({}, x)) // copying
+
+        let levelsCount = newBlocks.reduce((accumulator, currentValue) => {
+            if (accumulator[currentValue.y]) {
+                accumulator[currentValue.y] += 1 
+            }
+            else {
+                accumulator[currentValue.y] = 1
+            }
+            return accumulator
+        }, {})
+
+        const yToRemove = Object.keys(levelsCount).filter(x => levelsCount[x] >= fieldsSettings.xLastPoint)
+            .map(x => parseInt(x))
+
+        if (yToRemove.length > 0) {
+            newBlocks = newBlocks.filter(x => !yToRemove.includes(x.y))
+            newBlocks = newBlocks.map(newBlock => {
+                const yOffset = yToRemove.reduce((sum, cur) => {
+                    if (cur > newBlock.y) {
+                        sum++
+                    }
+                    return sum
+                }, 0)
+                newBlock.y += yOffset
+                return newBlock
+            })
+        }
+
+        return newBlocks;
     }
 
     return (

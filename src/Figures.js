@@ -67,7 +67,7 @@ const someFigure1 = [
 ]
 
 const FIGURES = [
-    cube,
+    //cube,
     someFigure1
 ]
 
