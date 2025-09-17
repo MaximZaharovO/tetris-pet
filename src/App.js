@@ -2,7 +2,6 @@ import { useState } from 'react';
 import './App.css';
 import Field from './components/Field';
 import FieldContext from './FieldContext';
-import useGlobalAction from './hooks/useGlobalAction';
 
 function App() {
 

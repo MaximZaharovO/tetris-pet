@@ -27,6 +27,7 @@ function Field({reset}) {
     const [cords, setCords] = useState({x: 0, y: 0, rotation: 0})
     const [currentFigure, setCurrentFigure] = useState([[]])
     const [field, setField] = useState({blocks: [], score: 0})
+    const [figuresPlaced, setFiguresPlaced] = useState(0)
     const [leftPressed, rightPressed, upPressed, downPressed] = useKeysAction(downRef, upRef, leftRef, rightRef)
 
     const [pauseDown, pauseManualDown, pauseManualLeft, pauseManualRight] = useTimerAction(75, updateCords, [

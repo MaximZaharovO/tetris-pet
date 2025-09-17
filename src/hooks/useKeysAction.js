@@ -1,5 +1,4 @@
-import { useState } from "react";
-import useGlobalAction from "./useGlobalAction";
+import { useCallback, useState, useEffect } from "react";
 
 export default function useKeysAction(downRef, upRef, leftRef, rightRef) {
     const [leftPressed, setLeftPressed] = useState(false)
@@ -9,9 +8,9 @@ export default function useKeysAction(downRef, upRef, leftRef, rightRef) {
 
     const [mouseControlsUsed, setMouseControlUsed] = useState(false)
 
-    const states = [leftPressed, rightPressed, upPressed, downPressed]
+    const states = [leftPressed, rightPressed, upPressed, downPressed, mouseControlsUsed]
 
-    function onKey(e, pressed) {
+    const onKey = useCallback((e, pressed) => {
         if (e.key === 'ArrowLeft') {
             e.preventDefault()
             setLeftPressed(pressed)
@@ -30,9 +29,9 @@ export default function useKeysAction(downRef, upRef, leftRef, rightRef) {
             e.preventDefault()
             setUpPressed(pressed)
         }
-    }
+    }, states)
 
-    function OnTouchEND() {
+    const OnTouchEND = useCallback(() => {
         if (mouseControlsUsed) {
             setMouseControlUsed(false)
 
@@ -41,46 +40,76 @@ export default function useKeysAction(downRef, upRef, leftRef, rightRef) {
             setLeftPressed(false)
             setRightPressed(false)
         }
-    }
+    }, states)
 
-    function OnTouchDOWN(e) {
+    const OnTouchDOWN = useCallback((e) => {
         e.preventDefault()
 
         setMouseControlUsed(true)
         setDownPressed(true)
-    }
+    }, [mouseControlsUsed, downPressed])
 
-    function OnTouchROTATE(e) {
+    const OnTouchROTATE = useCallback((e) => {
         e.preventDefault()
 
         setMouseControlUsed(true)
         setUpPressed(true)
-    }
+    }, [mouseControlsUsed, upPressed])
 
-    function OnTouchLEFT(e) {
+    const OnTouchLEFT = useCallback((e) => {
         e.preventDefault()
 
         setMouseControlUsed(true)
         setLeftPressed(true)
-    }
+    }, [mouseControlsUsed, leftPressed])
 
-    function OnTouchRIGHT(e) {
+    const OnTouchRIGHT = useCallback((e) => {
         e.preventDefault()
         
         setMouseControlUsed(true)
         setRightPressed(true)
-    }
+    }, [mouseControlsUsed, rightPressed])
 
+    useEffect(() => {
+        document.addEventListener("touchend", OnTouchEND);
 
-    useGlobalAction("touchend", (e) => OnTouchEND(e), states)
+        document.addEventListener("keydown", (e) => onKey(e, true));
+        document.addEventListener("keyup", (e) => onKey(e, false));
 
-    useGlobalAction("touchstart", (e) => OnTouchDOWN(e), states, downRef)
-    useGlobalAction("touchstart", (e) => OnTouchROTATE(e), states, upRef)
-    useGlobalAction("touchstart", (e) => OnTouchLEFT(e), states, leftRef)
-    useGlobalAction("touchstart", (e) => OnTouchRIGHT(e), states, rightRef)
+        if (downRef?.current) {
+            downRef.current.addEventListener("touchstart", OnTouchDOWN);
+        }
+        if (upRef?.current) {
+            upRef.current.addEventListener("touchstart", OnTouchROTATE);
+        }
+        if (leftRef?.current) {
+            leftRef.current.addEventListener("touchstart", OnTouchLEFT);
+        }
+        if (rightRef?.current) {
+            rightRef.current.addEventListener("touchstart", OnTouchRIGHT);
+        }
 
-    useGlobalAction("keydown", (e) => onKey(e, true), states)
-    useGlobalAction("keyup", (e) => onKey(e, false), states)
+        return () => {
+            document.removeEventListener("touchend", OnTouchEND);
+
+            document.removeEventListener("keydown", (e) => onKey(e, true));
+            document.removeEventListener("keyup", (e) => onKey(e, false));
+
+            if (downRef?.current) {
+                downRef.current.removeEventListener("touchstart", OnTouchDOWN);
+            }
+            if (upRef?.current) {
+                upRef.current.removeEventListener("touchstart", OnTouchROTATE);
+            }
+            if (leftRef?.current) {
+                leftRef.current.removeEventListener("touchstart", OnTouchLEFT);
+            }
+            if (rightRef?.current) {
+                rightRef.current.removeEventListener("touchstart", OnTouchRIGHT);
+            }
+        };
+    }, [downRef, upRef, leftRef, rightRef, 
+            OnTouchDOWN, OnTouchROTATE, OnTouchLEFT, OnTouchRIGHT, OnTouchEND, onKey]);
 
     return states
 }
