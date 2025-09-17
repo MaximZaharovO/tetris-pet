@@ -24,7 +24,6 @@ function Field({reset}) {
     const rightRef = useRef(null)
 
     const [stop, setStop] = useState(false)
-    const [isFirst, setIsFirst] = useState(true)
     const [cords, setCords] = useState({x: 0, y: 0, rotation: 0})
     const [currentFigure, setCurrentFigure] = useState([[]])
     const [field, setField] = useState({blocks: [], score: 0})
@@ -77,15 +76,6 @@ function Field({reset}) {
             return {...prev, y: yValue, x: xValue}
         })
     }
-
-    useEffect(() => {
-        if (isFirst) {
-            
-
-            saveFigures()
-            setIsFirst(false)
-        }
-    }, [isFirst])
 
     useEffect(() => {
         pauseDown(downPressed)
