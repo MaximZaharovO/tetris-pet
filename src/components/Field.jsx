@@ -1,5 +1,5 @@
 
-import { useContext, useEffect, useRef, useState } from 'react'
+import { useContext, useRef, useState } from 'react'
 import '../App.css'
 import Figure from './Figure.jsx'
 import FieldContext from '../FieldContext.js'
@@ -24,38 +24,39 @@ function Field({reset}) {
     const rightRef = useRef(null)
 
     const [stop, setStop] = useState(false)
+
     const [cords, setCords] = useState({x: 0, y: 0, rotation: 0})
+
     const [currentFigure, setCurrentFigure] = useState([[]])
     const [field, setField] = useState({blocks: [], score: 0})
-    const [figuresPlaced, setFiguresPlaced] = useState(0)
     const [leftPressed, rightPressed, upPressed, downPressed] = useKeysAction(downRef, upRef, leftRef, rightRef)
+    const [prevPressed, setPrevPressed] = useState({leftPressed, rightPressed, upPressed, downPressed})
+
+    const editArgsDown = (args) => args == null ? {XOffset: 0, YOffset: 1} : {...args, YOffset: args.YOffset + 1}
+    const editArgsManualDown = (args) => args == null ? {XOffset: 0, YOffset: 1} : {...args, YOffset: args.YOffset + 1}
+    const editArgsManualLeft = (args) => args == null ? {XOffset: -1, YOffset: 0} : {...args, XOffset: args.XOffset - 1}
+    const editArgsManualRight = (args) => args == null ? {XOffset: 1, YOffset: 0} : {...args, XOffset: args.XOffset + 1}
 
     const [pauseDown, pauseManualDown, pauseManualLeft, pauseManualRight] = useTimerAction(75, updateCords, [
-        {
-            // autoDOWN
-            editArgs: (args) => args == null ? {XOffset: 0, YOffset: 1} : {...args, YOffset: args.YOffset + 1},
-            launchOnCount: 15 - (figuresPlaced / 1),
-            accelerateOnCount: 300
-        },
-        {
-            // manualDOWN
-            editArgs: (args) => args == null ? {XOffset: 0, YOffset: 1} : {...args, YOffset: args.YOffset + 1},
-            pause: true,
-            launchOnCount: 1
-        },
-        {
-            // manualLEFT
-            editArgs: (args) => args == null ? {XOffset: -1, YOffset: 0} : {...args, XOffset: args.XOffset - 1},
-            pause: true,
-            launchOnCount: 1
-        },
-        {
-            // manualRIGHT
-            editArgs: (args) => args == null ? {XOffset: 1, YOffset: 0} : {...args, XOffset: args.XOffset + 1},
-            pause: true,
-            launchOnCount: 1 // Должно быть единицей, чтобы нормально работало смещение в сторону перед заверешением
-        },
+        // autoDOWN
+        { editArgs: editArgsDown, launchOnCount: 15, accelerateOnCount: 300 },
+        // manualDOWN
+        { editArgs: editArgsManualDown, pause: true, launchOnCount: 1 },
+        // manualLEFT
+        { editArgs: editArgsManualLeft, pause: true, launchOnCount: 1 },
+        // manualRIGHT
+        { editArgs: editArgsManualRight, pause: true, launchOnCount: 1 },
     ], stop)
+
+    if (currentFigure[0].length == 0) {
+        createNewFigure()
+    }
+
+    if (!stop && !canBeMovedDown(cords, {YOffset: 1, XOffset: 0})) {
+        saveFigures()
+    }
+
+    UpdateByPressed()
 
     function updateCords(offset) {
         setCords(prev => {
@@ -75,16 +76,41 @@ function Field({reset}) {
         })
     }
 
-    useEffect(() => {
+    function PressedChanged() {
+        return prevPressed.downPressed != downPressed ||
+                prevPressed.leftPressed != leftPressed ||
+                prevPressed.rightPressed != rightPressed ||
+                prevPressed.upPressed != upPressed
+    }
+
+    function UpdateByPressed() {
+        if (PressedChanged()) {
+            if (prevPressed.leftPressed != leftPressed || prevPressed.rightPressed != rightPressed) {
+                XPressed()
+            }
+            
+            if (prevPressed.downPressed != downPressed) {
+                YPressed()
+            }
+
+            if (prevPressed.upPressed != upPressed) {
+                RotatePressed()
+            }
+
+            setPrevPressed({downPressed, leftPressed, rightPressed, upPressed})
+        }
+    }
+
+    function YPressed() {
         pauseDown(downPressed)
         pauseManualDown(!downPressed)
 
         if (downPressed) {
             updateCords({XOffset: 0, YOffset: 1})
         }
-    }, [downPressed])
+    }
 
-    useEffect(() => {
+    function RotatePressed() {
         if (upPressed) {
             setCords(prev => {
                 if (canBeRotated(prev)) {
@@ -93,9 +119,9 @@ function Field({reset}) {
                 return prev
             })
         }
-    }, [upPressed])
+    }
 
-    useEffect(() => {
+    function XPressed() {
         if (leftPressed && rightPressed) {
             pauseManualLeft(true)
             pauseManualRight(true)
@@ -111,15 +137,9 @@ function Field({reset}) {
         
         pauseManualLeft(!leftPressed)
         pauseManualRight(!rightPressed)
-    }, [leftPressed, rightPressed])
+    }
 
-    useEffect(() => {
-        if (!stop && !canBeMovedDown(cords, {YOffset: 1, XOffset: 0})) {
-            saveFigures()
-        }
-    }, [cords])
-
-    useEffect(() => {
+    function createNewFigure() {
         let newBlocks = FIGURES[getRandomInt(FIGURES.length)]
         const baseXCord = fieldsSettings.xBase;
         const baseYCord = 0;
@@ -140,7 +160,7 @@ function Field({reset}) {
             rotation: baseRotation
         })
         pauseDown(false)
-    }, [field])
+    }
 
     function nextRotation(cords, currentFigure) {
         return cords.rotation + 1 < currentFigure.length ? cords.rotation + 1 : 0
@@ -212,11 +232,9 @@ function Field({reset}) {
                 }
             })
 
-            setFiguresPlaced(prev => prev + 1)
-
             pauseDown(true)
-
             setField(prev => addBlocks(prev, newItems))
+            createNewFigure()
         }
     }
 
